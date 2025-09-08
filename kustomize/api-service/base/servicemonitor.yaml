@@ -10,5 +10,5 @@ spec:
       app: api
   endpoints:
     - port: http
-    path: /metrics
-    interval: 30s
+      path: /metrics
+      interval: 30s
