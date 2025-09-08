@@ -4,7 +4,7 @@ metadata:
   name: api-stable
   namespace: apps
 spec:
-  entryPoints: [ websecure ]
+  entryPoints: [websecure]
   routes:
     - match: Host(`api.dev.example.com`) && PathPrefix(`/`)
       kind: Rule

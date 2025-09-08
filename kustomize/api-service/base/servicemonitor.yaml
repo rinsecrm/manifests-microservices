@@ -9,6 +9,6 @@ spec:
     matchLabels:
       app: api
   endpoints:
-  - port: http
+    - port: http
     path: /metrics
     interval: 30s

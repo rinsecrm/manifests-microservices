@@ -9,12 +9,12 @@ spec:
         github:
           owner: rinsecrm
           repo: store-service
-          tokenRef: { secretName: github-token, key: token }
+          tokenRef: {secretName: github-token, key: token}
         requeueAfterSeconds: 120
   template:
     metadata:
       name: store-service-canary-pr-{{ number }}
-      labels: { role: canary, app: store-service, pr: "{{ number }}" }
+      labels: {role: canary, app: store-service, pr: "{{ number }}"}
     spec:
       project: canary-deployments
       destination:
@@ -26,7 +26,7 @@ spec:
         path: kustomize/store-service/base
         kustomize:
           patches:
-            - target: { kind: Deployment, name: store }
+            - target: {kind: Deployment, name: store}
               patch: |-
                 - op: replace
                   path: /metadata/name
@@ -40,7 +40,7 @@ spec:
                 - op: replace
                   path: /spec/template/spec/containers/0/image
                   value: ghcr.io/rinsecrm/store-service:pr-{{ number }}
-            - target: { kind: Service, name: store }
+            - target: {kind: Service, name: store}
               patch: |-
                 - op: replace
                   path: /metadata/name

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: store-service
-          image: ghcr.io/rinsecrm/store-service:STABLE_TAG   # patched per env/PR
+          image: ghcr.io/rinsecrm/store-service:STABLE_TAG  # patched per env/PR
           ports:
             - containerPort: 8080
               name: grpc

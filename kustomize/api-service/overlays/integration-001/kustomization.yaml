@@ -5,4 +5,4 @@ resources:
   - ingressroute.yaml
 images:
   - name: ghcr.io/rinsecrm/api-service
-    newTag: latest   # Integration environment always uses latest production release
+    newTag: latest   # Integration uses latest production release

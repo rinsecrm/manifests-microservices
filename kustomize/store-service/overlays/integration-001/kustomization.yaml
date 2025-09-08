@@ -5,4 +5,4 @@ resources:
   - service-apex.yaml
 images:
   - name: ghcr.io/rinsecrm/store-service
-    newTag: latest   # Integration environment always uses latest production release
+    newTag: latest   # Integration uses latest production release

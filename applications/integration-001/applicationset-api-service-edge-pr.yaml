@@ -9,12 +9,12 @@ spec:
         github:
           owner: rinsecrm
           repo: api-service
-          tokenRef: { secretName: github-token, key: token }
+          tokenRef: {secretName: github-token, key: token}
         requeueAfterSeconds: 120
   template:
     metadata:
       name: api-service-canary-router-pr-{{ number }}
-      labels: { role: canary, pr: "{{ number }}", layer: edge }
+      labels: {role: canary, pr: "{{ number }}", layer: edge}
     spec:
       project: canary-deployments
       destination:
@@ -26,7 +26,7 @@ spec:
         path: kustomize/api-service/base
         kustomize:
           patches:
-            - target: { kind: IngressRoute }
+            - target: {kind: IngressRoute}
               patch: |-
                 - op: add
                   path: /apiVersion

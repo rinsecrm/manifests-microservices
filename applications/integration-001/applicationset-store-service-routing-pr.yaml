@@ -8,13 +8,17 @@ spec:
     - pullRequest:
         github:
           owner: rinsecrm
-          repo: store-service
-          tokenRef: { secretName: github-token, key: token }
+          repo: store-ser
+          tokenRef: {secretName: github-token, key: token}
         requeueAfterSeconds: 120
   template:
     metadata:
       name: store-service-routing-pr-{{ number }}
-      labels: { role: canary, app: store-service, pr: "{{ number }}", layer: routing }
+      labels:
+        role: canary
+        app: store-service
+        pr: "{{ number }}"
+        layer: routing
     spec:
       project: canary-deployments
       destination:
@@ -28,7 +32,10 @@ spec:
           resources:
             - grpc-route-template.yaml
           patches:
-            - target: { apiVersion: gateway.networking.k8s.io/v1, kind: GRPCRoute, name: store-canary-pr-{{ number }} }
+            - target:
+                apiVersion: gateway.networking.k8s.io/v1
+                kind: GRPCRoute
+                name: store-canary-pr-{{ number }}
               patch: |-
                 - op: replace
                   path: /metadata/name
@@ -40,4 +47,4 @@ spec:
                   path: /spec/rules/0/backendRefs/0/name
                   value: store-service-pr-{{ number }}
       syncPolicy:
-        automated: { prune: true, selfHeal: true }
+        automated: {prune: true, selfHeal: true}
