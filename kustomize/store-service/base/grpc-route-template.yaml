@@ -17,6 +17,6 @@ spec:
           namespace: apps  # canary service in same namespace
           port: 80
     - backendRefs:
-        - name: store
+        - name: store-service
           namespace: apps  # stable namespace
           port: 80

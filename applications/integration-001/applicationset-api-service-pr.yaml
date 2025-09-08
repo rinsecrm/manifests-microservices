@@ -22,7 +22,7 @@ spec:
         namespace: apps
       source:
         repoURL: https://github.com/rinsecrm/manifests-microservices.git
-        targetRevision: "{{ head_sha }}"
+        targetRevision: HEAD
         path: kustomize/api-service/base
         kustomize:
           patches:
