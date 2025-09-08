@@ -13,8 +13,8 @@ spec:
             - name: X-Canary
               value: "{{ number }}"
       backendRefs:
-        - name: store
-          namespace: apps  # cross-namespace reference
+        - name: store-service-pr-{{ number }}
+          namespace: apps  # canary service in same namespace
           port: 80
     - backendRefs:
         - name: store

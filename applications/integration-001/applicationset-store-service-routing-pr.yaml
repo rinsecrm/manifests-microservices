@@ -37,45 +37,7 @@ spec:
                   path: /spec/rules/0/matches/0/headers/0/value
                   value: "{{ number }}"
                 - op: replace
-                  path: /spec/rules/0/backendRefs/0/namespace
-                  value: store-canary-pr-{{ number }}
-      syncPolicy:
-        automated: { prune: true, selfHeal: true }
----
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: store-service-reference-grant-pr-canaries
-  namespace: apps
-spec:
-  generators:
-    - pullRequest:
-        github:
-          owner: rinsecrm
-          repo: store-service
-          tokenRef: { secretName: github-token, key: token }
-        requeueAfterSeconds: 120
-  template:
-    metadata:
-      name: store-service-reference-grant-pr-{{ number }}
-      labels: { role: canary, app: store-service, pr: "{{ number }}", layer: rbac }
-    spec:
-      project: canary-deployments
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: apps  # ReferenceGrant goes in target namespace
-      source:
-        repoURL: https://github.com/rinsecrm/manifests-microservices.git
-        targetRevision: "{{ head_sha }}"
-        path: kustomize/store-service/base
-        kustomize:
-          resources:
-            - reference-grant-template.yaml
-          patches:
-            - target: { apiVersion: gateway.networking.k8s.io/v1beta1, kind: ReferenceGrant, name: allow-apps-grpcroute }
-              patch: |-
-                - op: replace
-                  path: /metadata/namespace
-                  value: apps
+                  path: /spec/rules/0/backendRefs/0/name
+                  value: store-service-pr-{{ number }}
       syncPolicy:
         automated: { prune: true, selfHeal: true }

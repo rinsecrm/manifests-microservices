@@ -29,8 +29,25 @@ spec:
             - target: { kind: Deployment, name: store }
               patch: |-
                 - op: replace
+                  path: /metadata/name
+                  value: store-service-pr-{{ number }}
+                - op: replace
+                  path: /spec/selector/matchLabels/app
+                  value: store-service-pr-{{ number }}
+                - op: replace
+                  path: /spec/template/metadata/labels/app
+                  value: store-service-pr-{{ number }}
+                - op: replace
                   path: /spec/template/spec/containers/0/image
                   value: ghcr.io/rinsecrm/store-service:pr-{{ number }}
+            - target: { kind: Service, name: store }
+              patch: |-
+                - op: replace
+                  path: /metadata/name
+                  value: store-service-pr-{{ number }}
+                - op: replace
+                  path: /spec/selector/app
+                  value: store-service-pr-{{ number }}
       syncPolicy:
         automated: { prune: true, selfHeal: true }
         syncOptions: []

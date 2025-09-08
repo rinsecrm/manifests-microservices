@@ -29,8 +29,25 @@ spec:
             - target: { kind: Deployment, name: api }
               patch: |-
                 - op: replace
+                  path: /metadata/name
+                  value: api-service-pr-{{ number }}
+                - op: replace
+                  path: /spec/selector/matchLabels/app
+                  value: api-service-pr-{{ number }}
+                - op: replace
+                  path: /spec/template/metadata/labels/app
+                  value: api-service-pr-{{ number }}
+                - op: replace
                   path: /spec/template/spec/containers/0/image
                   value: ghcr.io/rinsecrm/api-service:pr-{{ number }}
+            - target: { kind: Service, name: api }
+              patch: |-
+                - op: replace
+                  path: /metadata/name
+                  value: api-service-pr-{{ number }}
+                - op: replace
+                  path: /spec/selector/app
+                  value: api-service-pr-{{ number }}
       syncPolicy:
         automated: { prune: true, selfHeal: true }
         syncOptions: []

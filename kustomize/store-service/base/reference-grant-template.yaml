@@ -1,14 +1,16 @@
+# ReferenceGrant not needed since all services are in the same namespace
+# This file is kept for compatibility but will not be used
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
   name: allow-apps-grpcroute
-  namespace: apps  # target namespace
+  namespace: apps
 spec:
   from:
     - group: gateway.networking.k8s.io
       kind: GRPCRoute
-      namespace: apps         # the route lives here
+      namespace: apps
   to:
-    - group: ""                     # core/v1 Service
+    - group: ""
       kind: Service
-      name: store                   # allow referencing this Service
+      name: store-service-pr-{{ number }}

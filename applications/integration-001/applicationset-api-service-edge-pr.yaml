@@ -48,7 +48,7 @@ spec:
                       - match: "Host(`api.dev.example.com`) && PathPrefix(`/`) && Headers(`X-Canary`, `{{ number }}`)"
                         kind: Rule
                         services:
-                          - name: api
+                          - name: api-service-pr-{{ number }}
                             namespace: apps
                             port: 80
                     tls:
