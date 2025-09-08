@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: store-pr-canaries
+  namespace: argocd
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: your-org
+          repo: store-service
+          tokenRef: { secretName: github-token, key: token }
+        requeueAfterSeconds: 120
+  template:
+    metadata:
+      name: store-canary-pr-{{ number }}
+      labels: { role: canary, app: store, pr: "{{ number }}" }
+    spec:
+      project: canary-deployments
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: store-canary-pr-{{ number }}
+      source:
+        repoURL: https://github.com/your-org/store-service.git
+        targetRevision: "{{ head_sha }}"
+        path: deploy/base
+        kustomize:
+          patches:
+            - target: { kind: Deployment, name: store }
+              patch: |-
+                - op: replace
+                  path: /spec/template/spec/containers/0/image
+                  value: registry.example.com/store-service:{{ head_short_sha }}
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }
+        syncOptions:
+          - CreateNamespace=true
