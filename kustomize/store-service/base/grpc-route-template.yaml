@@ -1,0 +1,22 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GRPCRoute
+metadata:
+  name: store-canary-pr-{{ number }}
+  namespace: apps  # stable namespace where apex service lives
+spec:
+  parentRefs:
+    - kind: Service
+      name: store        # apex ClusterIP used by callers
+  rules:
+    - matches:
+        - headers:
+            - name: X-Canary
+              value: "{{ number }}"
+      backendRefs:
+        - name: store
+          namespace: apps  # cross-namespace reference
+          port: 80
+    - backendRefs:
+        - name: store
+          namespace: apps  # stable namespace
+          port: 80

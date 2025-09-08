@@ -1,34 +1,34 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: store-routing-pr-canaries
-  namespace: argocd
+  name: store-service-routing-pr-canaries
+  namespace: apps
 spec:
   generators:
     - pullRequest:
         github:
-          owner: your-org
+          owner: rinsecrm
           repo: store-service
           tokenRef: { secretName: github-token, key: token }
         requeueAfterSeconds: 120
   template:
     metadata:
-      name: store-routing-pr-{{ number }}
-      labels: { role: canary, app: store, pr: "{{ number }}", layer: routing }
+      name: store-service-routing-pr-{{ number }}
+      labels: { role: canary, app: store-service, pr: "{{ number }}", layer: routing }
     spec:
       project: canary-deployments
       destination:
         server: https://kubernetes.default.svc
-        namespace: backoffice  # GRPCRoute goes in stable namespace
+        namespace: apps  # GRPCRoute goes in stable namespace
       source:
-        repoURL: https://github.com/your-org/store-service.git
+        repoURL: https://github.com/rinsecrm/manifests-microservices.git
         targetRevision: "{{ head_sha }}"
-        path: deploy/base
+        path: kustomize/store-service/base
         kustomize:
           resources:
             - grpc-route-template.yaml
           patches:
-            - target: { apiVersion: gateway.networking.k8s.io/v1, kind: GRPCRoute, name: store-canary-pr-PLACEHOLDER }
+            - target: { apiVersion: gateway.networking.k8s.io/v1, kind: GRPCRoute, name: store-canary-pr-{{ number }} }
               patch: |-
                 - op: replace
                   path: /metadata/name
@@ -45,37 +45,37 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: store-reference-grant-pr-canaries
-  namespace: argocd
+  name: store-service-reference-grant-pr-canaries
+  namespace: apps
 spec:
   generators:
     - pullRequest:
         github:
-          owner: your-org
+          owner: rinsecrm
           repo: store-service
           tokenRef: { secretName: github-token, key: token }
         requeueAfterSeconds: 120
   template:
     metadata:
-      name: store-reference-grant-pr-{{ number }}
-      labels: { role: canary, app: store, pr: "{{ number }}", layer: rbac }
+      name: store-service-reference-grant-pr-{{ number }}
+      labels: { role: canary, app: store-service, pr: "{{ number }}", layer: rbac }
     spec:
       project: canary-deployments
       destination:
         server: https://kubernetes.default.svc
-        namespace: store-canary-pr-{{ number }}  # ReferenceGrant goes in target namespace
+        namespace: apps  # ReferenceGrant goes in target namespace
       source:
-        repoURL: https://github.com/your-org/store-service.git
+        repoURL: https://github.com/rinsecrm/manifests-microservices.git
         targetRevision: "{{ head_sha }}"
-        path: deploy/base
+        path: kustomize/store-service/base
         kustomize:
           resources:
             - reference-grant-template.yaml
           patches:
-            - target: { apiVersion: gateway.networking.k8s.io/v1beta1, kind: ReferenceGrant, name: allow-backoffice-grpcroute }
+            - target: { apiVersion: gateway.networking.k8s.io/v1beta1, kind: ReferenceGrant, name: allow-apps-grpcroute }
               patch: |-
                 - op: replace
                   path: /metadata/namespace
-                  value: store-canary-pr-{{ number }}
+                  value: apps
       syncPolicy:
         automated: { prune: true, selfHeal: true }

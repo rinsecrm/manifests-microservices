@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: store-service
+  labels:
+    app: store-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: store-service
+  template:
+    metadata:
+      labels:
+        app: store-service
+    spec:
+      containers:
+        - name: store-service
+          image: ghcr.io/rinsecrm/store-service:STABLE_TAG   # patched per env/PR
+          ports:
+            - containerPort: 8080
+              name: grpc
+            - containerPort: 9090
+              name: metrics
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DYNAMODB_TABLE
+              value: "store-items"
+            - name: TEMPO_HOST
+              value: "tempo.monitoring:4317"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "echo 'health check'"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "echo 'ready'"]
+            initialDelaySeconds: 5
+            periodSeconds: 5

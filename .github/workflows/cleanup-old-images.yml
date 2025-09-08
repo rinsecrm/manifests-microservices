@@ -1,0 +1,36 @@
+name: Cleanup Old Docker Images
+
+# Run daily at midnight UTC to clean up old PR canary images
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  cleanup-api-service:
+    name: Cleanup API Service Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old API service images
+        uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: ${{ github.repository_owner }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: 'api-service'
+          cut-off: 4w  # Delete images older than 4 weeks
+          image-tags: 'pr-*'  # Only clean up PR canary images
+          dry-run: false
+
+  cleanup-store-service:
+    name: Cleanup Store Service Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old Store service images
+        uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: ${{ github.repository_owner }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: 'store-service'
+          cut-off: 4w  # Delete images older than 4 weeks
+          image-tags: 'pr-*'  # Only clean up PR canary images
+          dry-run: false

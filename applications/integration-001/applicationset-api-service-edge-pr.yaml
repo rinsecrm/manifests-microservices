@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: api-service-edge-pr-routers
+  namespace: apps
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: rinsecrm
+          repo: api-service
+          tokenRef: { secretName: github-token, key: token }
+        requeueAfterSeconds: 120
+  template:
+    metadata:
+      name: api-service-canary-router-pr-{{ number }}
+      labels: { role: canary, pr: "{{ number }}", layer: edge }
+    spec:
+      project: canary-deployments
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: apps
+      source:
+        repoURL: https://github.com/rinsecrm/manifests-microservices.git
+        targetRevision: "{{ head_sha }}"
+        path: kustomize/api-service/base
+        kustomize:
+          patches:
+            - target: { kind: IngressRoute }
+              patch: |-
+                - op: add
+                  path: /apiVersion
+                  value: traefik.containo.us/v1alpha1
+                - op: add
+                  path: /kind
+                  value: IngressRoute
+                - op: add
+                  path: /metadata
+                  value:
+                    name: api-canary-pr-{{ number }}
+                    namespace: apps
+                - op: add
+                  path: /spec
+                  value:
+                    entryPoints:
+                      - websecure
+                    routes:
+                      - match: "Host(`api.dev.example.com`) && PathPrefix(`/`) && Headers(`X-Canary`, `{{ number }}`)"
+                        kind: Rule
+                        services:
+                          - name: api
+                            namespace: apps
+                            port: 80
+                    tls:
+                      secretName: api-tls
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }

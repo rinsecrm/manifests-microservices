@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: store-service-integration-001
+  namespace: apps
+  labels:
+    app.kubernetes.io/name: store-service
+    app.kubernetes.io/part-of: canary-demo
+    environment: integration-001
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rinsecrm/manifests-microservices.git
+    targetRevision: HEAD
+    path: kustomize/store-service/overlays/integration-001
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true

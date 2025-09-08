@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api-integration-001
+  namespace: apps
+spec:
+  entryPoints: [ websecure ]
+  routes:
+    - match: Host(`api-integration-001.dev.example.com`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: api
+          namespace: apps
+          port: 80
+  tls: {}

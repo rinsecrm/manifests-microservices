@@ -1,0 +1,14 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-apps-grpcroute
+  namespace: apps  # target namespace
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: GRPCRoute
+      namespace: apps         # the route lives here
+  to:
+    - group: ""                     # core/v1 Service
+      kind: Service
+      name: store                   # allow referencing this Service

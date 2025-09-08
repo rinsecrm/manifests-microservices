@@ -1,37 +1,36 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: api-pr-canaries
-  namespace: argocd
+  name: store-service-pr-canaries
+  namespace: apps
 spec:
   generators:
     - pullRequest:
         github:
-          owner: your-org
-          repo: api-service
+          owner: rinsecrm
+          repo: store-service
           tokenRef: { secretName: github-token, key: token }
         requeueAfterSeconds: 120
   template:
     metadata:
-      name: api-canary-pr-{{ number }}
-      labels: { role: canary, app: api, pr: "{{ number }}" }
+      name: store-service-canary-pr-{{ number }}
+      labels: { role: canary, app: store-service, pr: "{{ number }}" }
     spec:
       project: canary-deployments
       destination:
         server: https://kubernetes.default.svc
-        namespace: api-canary-pr-{{ number }}
+        namespace: apps
       source:
-        repoURL: https://github.com/your-org/api-service.git
+        repoURL: https://github.com/rinsecrm/manifests-microservices.git
         targetRevision: "{{ head_sha }}"
-        path: deploy/base
+        path: kustomize/store-service/base
         kustomize:
           patches:
-            - target: { kind: Deployment, name: api }
+            - target: { kind: Deployment, name: store }
               patch: |-
                 - op: replace
                   path: /spec/template/spec/containers/0/image
-                  value: registry.example.com/api-service:{{ head_short_sha }}
+                  value: ghcr.io/rinsecrm/store-service:pr-{{ number }}
       syncPolicy:
         automated: { prune: true, selfHeal: true }
-        syncOptions:
-          - CreateNamespace=true
+        syncOptions: []
